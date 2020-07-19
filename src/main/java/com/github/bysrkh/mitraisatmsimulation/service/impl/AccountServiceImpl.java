@@ -3,15 +3,16 @@ package com.github.bysrkh.mitraisatmsimulation.service.impl;
 import com.github.bysrkh.mitraisatmsimulation.component.InputHelper;
 import com.github.bysrkh.mitraisatmsimulation.component.OutputHelper;
 import com.github.bysrkh.mitraisatmsimulation.domain.Account;
-import com.github.bysrkh.mitraisatmsimulation.dto.AccountRepository;
+import com.github.bysrkh.mitraisatmsimulation.domain.BalanceHistory;
 import com.github.bysrkh.mitraisatmsimulation.dto.Result;
+import com.github.bysrkh.mitraisatmsimulation.repository.AccountRepository;
 import com.github.bysrkh.mitraisatmsimulation.service.AccountService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import static com.github.bysrkh.mitraisatmsimulation.NavigationConstant.INVALID;
+import static com.github.bysrkh.mitraisatmsimulation.NavigationConstant.VALID;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -22,68 +23,80 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private OutputHelper outputHelper;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
 
     @Override
-    public Result<Account> deductAccount(Account requestedAccount) {
-        Result<Account> result = new Result<>(requestedAccount, 0, String.format("Insufficient balance $%s", requestedAccount.getDeductedBalance()));
+    public void deductAccount(Result<Account> result) {
+        Account requestedAccount = result.getResult();
+        result.setChoose(INVALID);
+        result.setMessage(String.format("Insufficient balance $%s", requestedAccount.getDeductedBalance()));
 
-        Account existingAccount = AccountRepository.getAccounts().get(requestedAccount.getAccountNumber());
+        Account existingAccount = accountRepository.getAccount(requestedAccount);
         int remainBalance = existingAccount.getBalance() - requestedAccount.getDeductedBalance();
 
-        if (remainBalance >= 0) {
-            existingAccount.setBalance(remainBalance);
-            existingAccount.setDeductedBalance(requestedAccount.getDeductedBalance());
-            AccountRepository.getAccounts().put(existingAccount.getAccountNumber(), existingAccount);
-            result = new Result<>(existingAccount, 1, "");
-        } else {
+        if (remainBalance < 0) {
             outputHelper.print(result.getMessage());
+            return;
         }
 
-        return result;
+        existingAccount.setBalance(remainBalance);
+        existingAccount.setDeductedBalance(requestedAccount.getDeductedBalance());
+        existingAccount.getBalanceHistories().add(new BalanceHistory(
+                existingAccount.getAccountNumber(),
+                existingAccount.getBalance(),
+                0,
+                existingAccount.getDeductedBalance()
+        ));
+        accountRepository.updateAccount(existingAccount);
+
+        result.setChoose(VALID);
+        result.setResult(existingAccount);
+        result.setMessage("");
     }
 
     @Override
-    public Result<Account> inputAccount() {
-        Result<Account> result = new Result<>(new Account(), 1, "");
+    public void inputAccount(Result<Account> result) {
+        result.setChoose(INVALID);
+        Account requestedAccount = result.getResult();
+
         do {
-            result.getResult().setAccountNumber(inputHelper.prompt("Enter account number"));
+            requestedAccount.setAccountNumber(inputHelper.prompt("Enter requestedAccount number"));
         } while (StringUtils.isBlank(result.getResult().getAccountNumber()));
 
         do {
-            result.getResult().setPin(inputHelper.prompt("Enter PIN"));
+            requestedAccount.setPin(inputHelper.prompt("Enter PIN"));
         } while (StringUtils.isBlank(result.getResult().getPin()));
 
-        if (result.getResult().getAccountNumber().length() != 6) {
+        if (requestedAccount.getAccountNumber().length() != 6) {
             result.setMessage("Account Number should have 6 digits length");
 
-            return result;
+            return;
         }
-        if (!result.getResult().getAccountNumber().matches("[0-9]+")) {
+        if (!requestedAccount.getAccountNumber().matches("[0-9]+")) {
             result.setMessage("Account Number should only contains numbers");
 
-            return result;
+            return;
         }
-        Account existingAccount = AccountRepository.getAccounts().get(result.getResult().getAccountNumber());
+        Account existingAccount = accountRepository.getAccount(requestedAccount);
         if ((existingAccount == null && !result.getResult().equals(existingAccount))) {
             result.setMessage("Invalid Account Number/PIN");
 
-            return result;
+            return;
         }
         result.setResult(existingAccount);
-        result.setChoose(1);
-
-        return result;
+        result.setChoose(VALID);
     }
 
     @Override
     public Result<Account> isExistingAccount(String accountNumber) {
-        Account existingAccount = AccountRepository.getAccounts().get(accountNumber);
-        Result<Account> result = new Result<>(existingAccount, 1, "");
+        Account existingAccount = accountRepository.getAccount(new Account(accountNumber));
+        Result<Account> result = null;
         if ((existingAccount == null && !result.getResult().equals(existingAccount))) {
             result.setMessage("Invalid Account Number/PIN");
-            result.setChoose(0);
+            result.setChoose(INVALID);
 
-            return result;
         }
         return result;
     }

@@ -2,6 +2,8 @@ package com.github.bysrkh.mitraisatmsimulation.domain;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Account {
@@ -11,8 +13,13 @@ public class Account {
     private int deductedBalance;
     private String accountNumber;
     private TransferredAccount transferredAccount;
+    private List<BalanceHistory> balanceHistories = new ArrayList<>();
 
     public Account() {
+    }
+
+    public Account(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String getName() {
@@ -80,6 +87,14 @@ public class Account {
         this.transferredAccount = transferredAccount;
     }
 
+    public List<BalanceHistory> getBalanceHistories() {
+        return balanceHistories;
+    }
+
+    public void setBalanceHistories(List<BalanceHistory> balanceHistories) {
+        this.balanceHistories = balanceHistories;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -90,8 +105,6 @@ public class Account {
 
         Account comparedAccount = (Account) obj;
         if (!(StringUtils.equals(this.getAccountNumber(), comparedAccount.getAccountNumber()) && StringUtils.equals(this.getPin(), comparedAccount.getPin())))
-            return false;
-        if (this.hashCode() != comparedAccount.hashCode())
             return false;
 
         return true;

@@ -5,11 +5,11 @@ import com.github.bysrkh.mitraisatmsimulation.dto.Result;
 
 public interface FundTransferService {
 
-    public Result<Account> inputTransferedAccount(Account account);
+    void inputTransferedAccount(Result<Account> account);
 
-    Result<Account> isValidData(Account account);
+    void isValidData(Result<Account> result);
 
-    Result<Account> transferAmount(Account account);
+    void transferAmount(Result<Account> result);
 
-    Result<Account> confirmTransaction(Account account);
+    void confirmTransaction(Result<Account> result);
 }

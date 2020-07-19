@@ -39,7 +39,7 @@ public class MenuServiceImpl implements MenuService {
                     "Please choose option");
             choosenOptionInString = inputHelper.prompt(menuOption);
             if(StringUtils.isBlank(choosenOptionInString))
-                choosenOptionInString = "3";
+                choosenOptionInString = "4";
 
         return Integer.parseInt(choosenOptionInString);
     }

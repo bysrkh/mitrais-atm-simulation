@@ -4,8 +4,10 @@ import com.github.bysrkh.mitraisatmsimulation.domain.Account;
 import com.github.bysrkh.mitraisatmsimulation.dto.Result;
 
 public interface AccountService {
-    Result<Account> deductAccount(Account account);
-    Result<Account> inputAccount();
+    void deductAccount(Result<Account> result);
+
+    void inputAccount(Result<Account> result);
+
     Result<Account> isExistingAccount(String accountNumber);
 
 }
