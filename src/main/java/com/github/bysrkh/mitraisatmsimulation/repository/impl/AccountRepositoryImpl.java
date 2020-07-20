@@ -42,7 +42,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
         for (int i = 0; i < balanceRecord.length; i++) {
             String[] balanceItems = balanceRecord[i].split("|");
-            balanceHistories.add(new BalanceHistory(balanceItems[0], Integer.parseInt(balanceItems[1]), Integer.parseInt(balanceItems[1]), Integer.parseInt(balanceItems[5])));
+            balanceHistories.add(new BalanceHistory(balanceItems[0], Integer.parseInt(balanceItems[1]), Integer.parseInt(balanceItems[2]), Integer.parseInt(balanceItems[3])));
         }
         return balanceHistories;
     };

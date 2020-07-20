@@ -28,6 +28,7 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
                 "Account Number | Current Balance | Credit | Debit",
                 account.getBalanceHistories()
                         .stream()
+                        .limit(10)
                         .map(balanceHistory ->
                                 String.format(
                                         "%s | %s | %s | %s\n", balanceHistory.getAccountNumber(),
