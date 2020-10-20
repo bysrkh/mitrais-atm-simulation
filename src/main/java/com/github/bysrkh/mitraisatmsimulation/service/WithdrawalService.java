@@ -34,8 +34,6 @@ public class WithdrawalService {
     @Autowired
     private OutputHelper outputHelper;
 
-    private List<Integer> acceptableFixedDeductedBalance = asList(TEN_DOLLAR_VALUE, FIFTY_DOLLAR_VALUE, ONE_HUNDRED_DOLLAR_VALUE);
-
     public Result<Account> withdrawFixedBalance(Result<Account> operatedAccountResult) {
         int deductedBalance = getFixedDeductedBalance(operatedAccountResult);
 
@@ -54,9 +52,11 @@ public class WithdrawalService {
         int deductedBalance = operatedAccountResult.getOperation();
 
         Account existingAccount = accountRepository.getAccount(operatedAccountResult.getResult());
-        Result checkedAccountResult = validateWithdrawOtherBalance(existingAccount, deductedBalance);
-        if (INVALID.getValue() == checkedAccountResult.getValid())
-            return checkedAccountResult;
+        Result chckAccountResult = validateWithdrawOtherBalance(existingAccount, deductedBalance);
+        if (INVALID.getValue() == chckAccountResult.getValid()) {
+            outputHelper.print(chckAccountResult.getMessage());
+            return chckAccountResult;
+        }
 
         Account updatedAccount = operateDeductionFromAccount(existingAccount, deductedBalance);
 
@@ -107,9 +107,7 @@ public class WithdrawalService {
 
     private Account operateDeductionFromAccount(Account existingAccount, int deductedBalance) {
         int remainBalance = existingAccount.getBalance() - deductedBalance;
-        System.out.println("Winda Nurmala");
-        System.out.println(remainBalance);
-        System.out.println(existingAccount.getBalance());
+
         existingAccount.setBalance(remainBalance);
         existingAccount.getBalanceHistories().add(new BalanceHistory(existingAccount.getAccountNumber(), existingAccount.getBalance(), 0, deductedBalance));
 

@@ -105,13 +105,9 @@ public class FundTransferService {
         Account existTrfAccount = accountRepository.getAccount(reqTrfAccount);
         if (VALID.getValue() == result.getValid() && existTrfAccount == null) {
             result.setMessage("Invalid account");
-            System.out.println("lewat sini ga 1");
             result.setValid(INVALID.getValue());
         }
         if (VALID.getValue() == result.getValid() && !trfAccount.getTransferredAmount().matches("[0-9]+")) {
-            System.out.println("lewat sini ga 2");
-            System.out.println(trfAccount.getTransferredAmount());
-            System.out.println("lewat sini ga 2");
             result.setMessage("Invalid amount");
             result.setValid(INVALID.getValue());
         }
@@ -119,18 +115,15 @@ public class FundTransferService {
         int trfAmount = VALID.getValue() == result.getValid()? Integer.parseInt(trfAccount.getTransferredAmount()): 0;
         if (VALID.getValue() == result.getValid() && trfAmount < 1) {
             result.setMessage("Minimum amount to withdraw is $1");
-            System.out.println("lewat sini ga 3");
             result.setValid(INVALID.getValue());
         }
         if (VALID.getValue() == result.getValid() && trfAmount > 1000) {
             result.setMessage("Maximum amount to withdraw is $1000");
-            System.out.println("lewat sini ga 4");
             result.setValid(INVALID.getValue());
         }
         Account existAccount = accountRepository.getAccount(account);
         if (VALID.getValue() == result.getValid() &&  existAccount.getBalance() < trfAmount) {
             result.setMessage("Insufficient balance $" + existAccount.getBalance());
-            System.out.println("lewat sini ga 5");
             result.setValid(INVALID.getValue());
         }
 

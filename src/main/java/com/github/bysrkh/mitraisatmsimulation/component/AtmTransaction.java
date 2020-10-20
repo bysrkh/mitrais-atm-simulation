@@ -64,10 +64,7 @@ public class AtmTransaction {
 
         do {
             result = accountService.inputAccount(result);
-            if (result.getValid() == INVALID.getValue()) {
-                outputHelper.print(result.getMessage());
-                continue;
-            }
+
             while (acceptableNavigation.contains(result.getNavigation())) {
                 if (TO_TRANSACTION.getValue() == result.getNavigation()) {
                     result.setNavigation(menuService.choosenMenu());

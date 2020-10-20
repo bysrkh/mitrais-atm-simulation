@@ -37,46 +37,33 @@ public class AccountService {
             requestedAccount.setPin(inputHelper.prompt("Enter PIN"));
         } while (StringUtils.isBlank(request.getResult().getPin()));
 
-        Result<Account> checkedAccountResult = validateInputAccount(requestedAccount);
-        if (INVALID.getValue() == checkedAccountResult.getValid())
-            return checkedAccountResult;
+        Result<Account> chkAccountResult = validateInputAccount(requestedAccount);
+        if (INVALID.getValue() == chkAccountResult.getValid()) {
+            outputHelper.print(chkAccountResult.getMessage());
+        }
+        System.out.print("ululu");
 
-        return checkedAccountResult;
+        return chkAccountResult;
     }
 
 
-//    public Result<Account> isExistingAccount(String accountNumber) {
-//        Account existingAccount = accountRepository.getAccount(new Account(accountNumber));
-//        Result<Account> result = null;
-//        if ((existingAccount == null && !result.getResult().equals(existingAccount))) {
-//            result.setMessage("Invalid Account Number/PIN");
-//            result.setOperation(INVALID);
-//
-//        }
-//        return result;
-//    }
-
     public Result<Account> validateInputAccount(Account requestedAccount) {
-        Result<Account> result = new Result(requestedAccount, 0, "", TO_TRANSACTION.getValue(), VALID.getValue());
+        Result<Account> result = new Result(requestedAccount, 0, "", TO_WELCOME_SCREEN.getValue(), INVALID.getValue());
 
         if (requestedAccount.getAccountNumber().length() != 6) {
             result.setMessage("Account Number should have 6 digits length");
-            result.setNavigation(TO_WELCOME_SCREEN.getValue());
-            result.setValid(INVALID.getValue());
+            return result;
         }
         if (!requestedAccount.getAccountNumber().matches("[0-9]+")) {
             result.setMessage("Account Number should only contains numbers");
-            result.setNavigation(TO_WELCOME_SCREEN.getValue());
-            result.setValid(INVALID.getValue());
+            return result;
         }
-
         Account existingAccount = accountRepository.getAccount(requestedAccount);
         if ((existingAccount == null && !requestedAccount.equals(existingAccount))) {
             result.setMessage("Invalid Account Number/PIN");
-            result.setNavigation(TO_WELCOME_SCREEN.getValue());
-            result.setValid(INVALID.getValue());
+            return result;
         }
 
-        return result;
+        return new Result(existingAccount, 0, "", TO_TRANSACTION.getValue(), INVALID.getValue());
     }
 }
