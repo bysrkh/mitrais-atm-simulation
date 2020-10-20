@@ -55,6 +55,14 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public Account getAccount(Account account) {
 
+        Account existingAccount = getAccountFromMap(account);
+        if (existingAccount == null) {
+            throw new RuntimeException("Account is not found");
+        }
+        return existingAccount;
+    }
+
+    private Account getAccountFromMap(Account account) {
         return accounts.get(account.getAccountNumber());
     }
 
@@ -67,7 +75,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     public void prepareAccountsFromCsv() {
         CSVParser records = null;
         try {
-            InputStreamReader fileResource = new InputStreamReader(resourceLoader.getResource("file:D:/data.csv").getInputStream());
+            InputStreamReader fileResource = new InputStreamReader(resourceLoader.getResource("classpath:csv/data.csv").getInputStream());
             records = CSVFormat.DEFAULT.withHeader("Name", "PIN", "Balance", "Account Number", "Balance History").withTrim().withFirstRecordAsHeader().parse(fileResource);
         } catch (IOException exc) {
             outputHelper.print(exc.getMessage());
@@ -84,6 +92,9 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             accounts.put(account.getAccountNumber(), account);
         });
+
+        System.out.print("Winda Nurmala");
+        System.out.println(accounts.get("112233").getBalance());
     }
 
     public void saveAccountsToCsv() throws Exception {

@@ -2,19 +2,9 @@ package com.github.bysrkh.mitraisatmsimulation.domain;
 
 public class TransferredAccount {
     private String accountNumber;
-    private int transferredAmount;
+    private String transferredAmount;
     private String transferredAmountInString;
     private String referenceNumber;
-
-    public TransferredAccount() {
-    }
-
-    public TransferredAccount(String accountNumber, int transferredAmount, String transferredAmountInString, String referenceNumber) {
-        this.accountNumber = accountNumber;
-        this.transferredAmount = transferredAmount;
-        this.transferredAmountInString = transferredAmountInString;
-        this.referenceNumber = referenceNumber;
-    }
 
     public String getAccountNumber() {
         return accountNumber;
@@ -24,11 +14,11 @@ public class TransferredAccount {
         this.accountNumber = accountNumber;
     }
 
-    public int getTransferredAmount() {
+    public String getTransferredAmount() {
         return transferredAmount;
     }
 
-    public void setTransferredAmount(int transferredAmount) {
+    public void setTransferredAmount(String transferredAmount) {
         this.transferredAmount = transferredAmount;
     }
 

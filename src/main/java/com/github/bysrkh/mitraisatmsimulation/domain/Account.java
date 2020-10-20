@@ -10,9 +10,7 @@ public class Account {
     private String name;
     private String pin;
     private int balance;
-    private int deductedBalance;
     private String accountNumber;
-    private TransferredAccount transferredAccount;
     private List<BalanceHistory> balanceHistories = new ArrayList<>();
 
     public Account() {
@@ -26,21 +24,11 @@ public class Account {
         return name;
     }
 
-    public Account(String name, String pin, int balance, int deductedBalance, String accountNumber) {
+    public Account(String name, String pin, int balance, String accountNumber) {
         this.name = name;
         this.pin = pin;
         this.balance = balance;
-        this.deductedBalance = deductedBalance;
         this.accountNumber = accountNumber;
-    }
-
-    public Account(String name, String pin, int balance, int deductedBalance, String accountNumber, TransferredAccount transferredAccount) {
-        this.name = name;
-        this.pin = pin;
-        this.balance = balance;
-        this.deductedBalance = deductedBalance;
-        this.accountNumber = accountNumber;
-        this.transferredAccount = transferredAccount;
     }
 
     public void setName(String name) {
@@ -63,14 +51,6 @@ public class Account {
         this.balance = balance;
     }
 
-    public int getDeductedBalance() {
-        return deductedBalance;
-    }
-
-    public void setDeductedBalance(int deductedBalance) {
-        this.deductedBalance = deductedBalance;
-    }
-
     public String getAccountNumber() {
         return accountNumber;
     }
@@ -79,13 +59,6 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-    public TransferredAccount getTransferredAccount() {
-        return transferredAccount;
-    }
-
-    public void setTransferredAccount(TransferredAccount transferredAccount) {
-        this.transferredAccount = transferredAccount;
-    }
 
     public List<BalanceHistory> getBalanceHistories() {
         return balanceHistories;
