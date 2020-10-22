@@ -40,7 +40,7 @@ public class FundTransferService {
     private Menu menu = new Menu();
 
     public Result<TransferredAccount> inputTransferedAccount() {
-        Result<TransferredAccount> result = new Result<>(new TransferredAccount(), 0, "", TO_TRANSACTION.getValue(), INVALID.getValue());
+        Result<TransferredAccount> result = new Result<>(new TransferredAccount(), 0, "", TO_TRANSACTION.getValue(), INVALID);
 
         String accNo = inputHelper.prompt("Please enter destination account and press enter to continue or\npress enter to go back to Transaction ");
         if (StringUtils.isBlank(accNo)) {
@@ -65,7 +65,7 @@ public class FundTransferService {
         System.out.println(reqTrfAccount.getTransferredAmount());
         Result<Account> chkAccResult = validateInputBeforeTransfer(reqTrfAccount, reqAccount);
 
-        if (INVALID.getValue() == chkAccResult.getValid()) return chkAccResult;
+        if (INVALID == chkAccResult.getValid()) return chkAccResult;
 
         Account transactionData = toAccount(reqTrfAccount);
         Account trfAccount = accountRepository.getAccount(transactionData);
@@ -95,39 +95,39 @@ public class FundTransferService {
     }
 
     private Result<Account> validateInputBeforeTransfer(TransferredAccount trfAccount, Account account) {
-        Result<Account> result = new Result<>(account, 0, "", TO_FUND_TRANSFER_SUMMARY.getValue(), VALID.getValue());
+        Result<Account> result = new Result<>(account, 0, "", TO_FUND_TRANSFER_SUMMARY.getValue(), VALID);
 
         if (!trfAccount.getAccountNumber().matches("[0-9]+")) {
             result.setMessage("Invalid account");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
         Account reqTrfAccount = toAccount(trfAccount);
         Account existTrfAccount = accountRepository.getAccount(reqTrfAccount);
-        if (VALID.getValue() == result.getValid() && existTrfAccount == null) {
+        if (VALID == result.getValid() && existTrfAccount == null) {
             result.setMessage("Invalid account");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
-        if (VALID.getValue() == result.getValid() && !trfAccount.getTransferredAmount().matches("[0-9]+")) {
+        if (VALID == result.getValid() && !trfAccount.getTransferredAmount().matches("[0-9]+")) {
             result.setMessage("Invalid amount");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
 
-        int trfAmount = VALID.getValue() == result.getValid()? Integer.parseInt(trfAccount.getTransferredAmount()): 0;
-        if (VALID.getValue() == result.getValid() && trfAmount < 1) {
+        int trfAmount = VALID == result.getValid()? Integer.parseInt(trfAccount.getTransferredAmount()): 0;
+        if (VALID == result.getValid() && trfAmount < 1) {
             result.setMessage("Minimum amount to withdraw is $1");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
-        if (VALID.getValue() == result.getValid() && trfAmount > 1000) {
+        if (VALID == result.getValid() && trfAmount > 1000) {
             result.setMessage("Maximum amount to withdraw is $1000");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
         Account existAccount = accountRepository.getAccount(account);
-        if (VALID.getValue() == result.getValid() &&  existAccount.getBalance() < trfAmount) {
+        if (VALID == result.getValid() &&  existAccount.getBalance() < trfAmount) {
             result.setMessage("Insufficient balance $" + existAccount.getBalance());
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
 
-        if (INVALID.getValue() == result.getValid()) {
+        if (INVALID == result.getValid()) {
             outputHelper.print(result.getMessage());
             result.setNavigation(TO_FUND_TRANSFER.getValue());
         }

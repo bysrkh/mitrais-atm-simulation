@@ -6,11 +6,8 @@ import com.github.bysrkh.mitraisatmsimulation.domain.BalanceHistory;
 import com.github.bysrkh.mitraisatmsimulation.dto.Result;
 import com.github.bysrkh.mitraisatmsimulation.repository.AccountRepository;
 import com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant;
-import com.github.bysrkh.mitraisatmsimulation.util.constant.ValidConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_OTHER_WITHDRAWAL;
 import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_WITHDRAWAL;
@@ -22,7 +19,6 @@ import static com.github.bysrkh.mitraisatmsimulation.util.constant.WithdrawConst
 import static com.github.bysrkh.mitraisatmsimulation.util.constant.WithdrawConstant.ONE_HUNDRED_DOLLAR_VALUE;
 import static com.github.bysrkh.mitraisatmsimulation.util.constant.WithdrawConstant.TEN_DOLLAR_OPTION;
 import static com.github.bysrkh.mitraisatmsimulation.util.constant.WithdrawConstant.TEN_DOLLAR_VALUE;
-import static java.util.Arrays.asList;
 
 @Service
 public class WithdrawalService {
@@ -39,13 +35,13 @@ public class WithdrawalService {
 
         Account existingAccount = accountRepository.getAccount(operatedAccountResult.getResult());
         Result<Account> checkedAccountResult = validateWithdrawFixedBalance(existingAccount, deductedBalance);
-        if (INVALID.getValue() == checkedAccountResult.getValid())
+        if (INVALID == checkedAccountResult.getValid())
             return checkedAccountResult;
 
         Account updatedAccount = operateDeductionFromAccount(existingAccount, deductedBalance);
         updatedAccount = accountRepository.updateAccount(updatedAccount);
 
-        return new Result(updatedAccount, 0, "", NavigationConstant.TO_WITHDRAWAL_SUMMARY.getValue(), ValidConstant.VALID.getValue());
+        return new Result(updatedAccount, 0, "", NavigationConstant.TO_WITHDRAWAL_SUMMARY.getValue(), VALID);
     }
 
     public Result<Account> withdrawOtherBalance(Result<Account> operatedAccountResult) {
@@ -53,14 +49,14 @@ public class WithdrawalService {
 
         Account existingAccount = accountRepository.getAccount(operatedAccountResult.getResult());
         Result chckAccountResult = validateWithdrawOtherBalance(existingAccount, deductedBalance);
-        if (INVALID.getValue() == chckAccountResult.getValid()) {
+        if (INVALID == chckAccountResult.getValid()) {
             outputHelper.print(chckAccountResult.getMessage());
             return chckAccountResult;
         }
 
         Account updatedAccount = operateDeductionFromAccount(existingAccount, deductedBalance);
 
-        return new Result(updatedAccount, 0, "", NavigationConstant.TO_WITHDRAWAL_SUMMARY.getValue(), ValidConstant.VALID.getValue());
+        return new Result(updatedAccount, 0, "", NavigationConstant.TO_WITHDRAWAL_SUMMARY.getValue(), VALID);
     }
 
     private int getFixedDeductedBalance(Result<Account> operatedAccountResult) {
@@ -84,20 +80,20 @@ public class WithdrawalService {
 
     private Result<Account> validateWithdrawOtherBalance(Account existingAccount, int deductedBalance) {
         if (deductedBalance > 1000)
-            return new Result(existingAccount, 0, "Maximum amount to withdraw is $1000", TO_OTHER_WITHDRAWAL.getValue(), INVALID.getValue());
+            return new Result(existingAccount, 0, "Maximum amount to withdraw is $1000", TO_OTHER_WITHDRAWAL.getValue(), INVALID);
         else if (deductedBalance % 10 != 0)
-            return new Result(existingAccount, 0, "Invalid ammount", TO_OTHER_WITHDRAWAL.getValue(), INVALID.getValue());
+            return new Result(existingAccount, 0, "Invalid ammount", TO_OTHER_WITHDRAWAL.getValue(), INVALID);
         else if (existingAccount.getBalance() < deductedBalance)
-            return new Result(existingAccount, 0, "Insufficient balance $" + deductedBalance, NavigationConstant.TO_WITHDRAWAL.getValue(), INVALID.getValue());
+            return new Result(existingAccount, 0, "Insufficient balance $" + deductedBalance, NavigationConstant.TO_WITHDRAWAL.getValue(), INVALID);
         else
-            return new Result(existingAccount, 0, "Unrecognized Error" + deductedBalance, TO_OTHER_WITHDRAWAL.getValue(), VALID.getValue());
+            return new Result(existingAccount, 0, "Unrecognized Error" + deductedBalance, TO_OTHER_WITHDRAWAL.getValue(), VALID);
     }
 
     private Result<Account> validateWithdrawFixedBalance(Account existingAccount, int fixedDeductedBalance) {
-        Result<Account> result = new Result<>(existingAccount, 0, "", TO_WITHDRAWAL.getValue(), VALID.getValue());
+        Result<Account> result = new Result<>(existingAccount, 0, "", TO_WITHDRAWAL.getValue(), VALID);
         if (existingAccount.getBalance() < fixedDeductedBalance) {
             result.setMessage("Insufficient balance");
-            result.setValid(INVALID.getValue());
+            result.setValid(INVALID);
         }
 
         outputHelper.print(result.getMessage());

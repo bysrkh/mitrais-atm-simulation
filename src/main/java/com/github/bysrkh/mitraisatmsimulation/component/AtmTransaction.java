@@ -59,8 +59,8 @@ public class AtmTransaction {
 
     @ShellMethod("Start to transaction: ")
     public String start() {
-        Result<Account> result = new Result(new Account(), 0, "", TO_TRANSACTION.getValue(), VALID.getValue());
-        Result<TransferredAccount> transferredAccountResult = new Result<>(new TransferredAccount(), 0, "", TO_TRANSACTION.getValue(), VALID.getValue());
+        Result<Account> result = new Result(new Account(), 0, "", TO_TRANSACTION.getValue(), VALID);
+        Result<TransferredAccount> transferredAccountResult = new Result<>(new TransferredAccount(), 0, "", TO_TRANSACTION.getValue(), VALID);
 
         do {
             result = accountService.inputAccount(result);
