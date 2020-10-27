@@ -56,67 +56,68 @@ public class AtmTransaction {
             TO_TRANSACTION_HISTORY,
             TO_OTHER_WITHDRAWAL
     );
-
+    private List<NavigationConstant> nonAcceptableFixedWithdrawNavigation = asList(
+            TO_TRANSACTION,
+            TO_OTHER_WITHDRAWAL
+    );
+    private List<Integer> acceptableFixedWithdrawalNavigation = asList(1, 2, 3);
 
     @ShellMethod("Start to transaction: ")
     public String start() {
         Result<Account> result = new Result(new Account(), "", TO_TRANSACTION, VALID);
-        Result<TransferredAccount> transferredAccountResult = new Result<TransferredAccount>(new TransferredAccount(), "", TO_TRANSACTION, VALID);
-
         do {
             result = accountService.inputAccount(result);
-
-            while (acceptableNavigation.contains(result.getNavigation())) {
-                if (TO_TRANSACTION == result.getNavigation()) {
-                    result.setNavigation(NavigationConstant.fromValue(menuService.choosenMenu()));
-
-                } else if (result.getNavigation() == TO_WITHDRAWAL) {
-                    result.setAdditionalNavigation(menuService.choosenWithdraw());
-
-                    if (TO_OTHER_WITHDRAWAL.getValue() == result.getAdditionalNavigation() || TO_TRANSACTION.getValue() == result.getAdditionalNavigation()) {
-                        result.setNavigation(NavigationConstant.fromValue(result.getAdditionalNavigation()));
-                        result.setAdditionalNavigation(0);
-
-                        continue;
-                    }
-
-                    result = withdrawalService.withdrawFixedBalance(result);
-
-                } else if (result.getNavigation() == TO_OTHER_WITHDRAWAL) {
-                    result.setAdditionalNavigation(menuService.chooseWitdhrawalAdditionalOption());
-                    result = withdrawalService.withdrawOtherBalance(result);
-
-                } else if (TO_FUND_TRANSFER == result.getNavigation()) {
-                    transferredAccountResult = fundTransferService.inputTransferedAccount();
-                    result.setNavigation(transferredAccountResult.getNavigation());
-
-                } else if (result.getNavigation() == TO_WITHDRAWAL_SUMMARY) {
-                    result.setNavigation(NavigationConstant.fromValue(
-                            menuService.chooseWithdrawSummary(result.getResult()))
-                    );
-
-                } else if (TO_FUND_TRANSFER_CONFIRMATION == result.getNavigation()) {
-                    result.setNavigation(NavigationConstant.fromValue(
-                            fundTransferService.confirmTransaction(transferredAccountResult.getResult(), result.getResult()))
-                    );
-
-                    if (TO_FUND_TRANSFER == result.getNavigation()) continue;
-
-                    result = fundTransferService.transferAmount(transferredAccountResult.getResult(), result.getResult());
-
-                } else if (TO_FUND_TRANSFER_SUMMARY == result.getNavigation()) {
-                    result.setNavigation(NavigationConstant.fromValue(
-                            menuService.chooseFundTransferSummary(transferredAccountResult.getResult(), result.getResult()))
-                    );
-                } else if (TO_TRANSACTION_HISTORY == result.getNavigation()) {
-                    result.setNavigation(NavigationConstant.fromValue(
-                            transactionHistoryService.printTransactionHistory(result))
-                    );
-                }
-            }
+            result = proccessAtmScreen(result);
         } while (result.getNavigation() == TO_WELCOME_SCREEN);
 
         return "good bye";
+    }
+
+    private Result<Account> proccessAtmScreen(Result<Account> result) {
+        Result<TransferredAccount> transferredAccountResult = new Result<TransferredAccount>(new TransferredAccount(), "", TO_TRANSACTION, VALID);
+        while (acceptableNavigation.contains(result.getNavigation())) {
+            if (TO_TRANSACTION == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(menuService.choosenMenu()));
+
+            } else if (result.getNavigation() == TO_WITHDRAWAL) {
+                int choosenWithdraw = menuService.choosenWithdraw();
+                result.setAdditionalNavigation(choosenWithdraw);
+                result.setNavigation(NavigationConstant.fromValue(choosenWithdraw));
+                if (acceptableFixedWithdrawalNavigation.contains(result.getAdditionalNavigation()))
+                    result = withdrawalService.withdrawFixedBalance(result);
+
+            } else if (result.getNavigation() == TO_OTHER_WITHDRAWAL) {
+                result.setAdditionalNavigation(menuService.chooseWitdhrawalAdditionalOption());
+                result = withdrawalService.withdrawOtherBalance(result);
+
+            } else if (TO_FUND_TRANSFER == result.getNavigation()) {
+                transferredAccountResult = fundTransferService.inputTransferedAccount();
+                result.setNavigation(transferredAccountResult.getNavigation());
+
+            } else if (result.getNavigation() == TO_WITHDRAWAL_SUMMARY) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        menuService.chooseWithdrawSummary(result.getResult()))
+                );
+
+            } else if (TO_FUND_TRANSFER_CONFIRMATION == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        fundTransferService.confirmTransaction(transferredAccountResult.getResult(), result.getResult()))
+                );
+                if (TO_FUND_TRANSFER != result.getNavigation())
+                    result = fundTransferService.transferAmount(transferredAccountResult.getResult(), result.getResult());
+
+            } else if (TO_FUND_TRANSFER_SUMMARY == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        menuService.chooseFundTransferSummary(transferredAccountResult.getResult(), result.getResult()))
+                );
+            } else if (TO_TRANSACTION_HISTORY == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        transactionHistoryService.printTransactionHistory(result))
+                );
+
+            }
+        }
+        return result;
     }
 
 }
