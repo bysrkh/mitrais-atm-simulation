@@ -40,14 +40,13 @@ public class AccountService {
         if (INVALID == chkAccountResult.getValid()) {
             outputHelper.print(chkAccountResult.getMessage());
         }
-        System.out.print("ululu");
 
         return chkAccountResult;
     }
 
 
     public Result<Account> validateInputAccount(Account requestedAccount) {
-        Result<Account> result = new Result(requestedAccount, 0, "", TO_WELCOME_SCREEN.getValue(), INVALID);
+        Result<Account> result = new Result(requestedAccount, "", TO_WELCOME_SCREEN, INVALID);
 
         if (requestedAccount.getAccountNumber().length() != 6) {
             result.setMessage("Account Number should have 6 digits length");
@@ -63,6 +62,6 @@ public class AccountService {
             return result;
         }
 
-        return new Result(existingAccount, 0, "", TO_TRANSACTION.getValue(), INVALID);
+        return new Result(existingAccount, "", TO_TRANSACTION, INVALID);
     }
 }

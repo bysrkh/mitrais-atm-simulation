@@ -21,4 +21,12 @@ public enum NavigationConstant {
     public int getValue() {
         return value;
     }
+
+    public static NavigationConstant fromValue(int value) {
+        for (NavigationConstant navCt : values()) {
+            if (navCt.getValue() == value) return navCt;
+        }
+
+        throw new RuntimeException("Enum is not listed");
+    }
 }

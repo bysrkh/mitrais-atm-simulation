@@ -35,12 +35,12 @@ public class FundTransferService {
 
     @Autowired
     private AccountRepository accountRepository;
-    private Function<Map.Entry, String> extractValue = values -> String.format("%s. %s\n", values.getKey(), values.getValue());
+    private Function<Map.Entry, String> extractValue = values -> String.format("%s. %s\n", values.getKey(), values);
 
     private Menu menu = new Menu();
 
     public Result<TransferredAccount> inputTransferedAccount() {
-        Result<TransferredAccount> result = new Result<>(new TransferredAccount(), 0, "", TO_TRANSACTION.getValue(), INVALID);
+        Result<TransferredAccount> result = new Result<TransferredAccount>(new TransferredAccount(), "", TO_TRANSACTION, INVALID);
 
         String accNo = inputHelper.prompt("Please enter destination account and press enter to continue or\npress enter to go back to Transaction ");
         if (StringUtils.isBlank(accNo)) {
@@ -55,7 +55,7 @@ public class FundTransferService {
         result.getResult().setAccountNumber(accNo);
         result.getResult().setTransferredAmount(trfAmount);
         result.getResult().setReferenceNumber("123456");
-        result.setNavigation(TO_FUND_TRANSFER_CONFIRMATION.getValue());
+        result.setNavigation(TO_FUND_TRANSFER_CONFIRMATION);
 
         return result;
     }
@@ -81,7 +81,7 @@ public class FundTransferService {
         trfAccount = accountRepository.updateAccount(trfAccount);
 
         chkAccResult.setResult(reqAccount);
-        chkAccResult.setNavigation(TO_WITHDRAWAL_SUMMARY.getValue());
+        chkAccResult.setNavigation(TO_WITHDRAWAL_SUMMARY);
 
         return chkAccResult;
     }
@@ -95,7 +95,7 @@ public class FundTransferService {
     }
 
     private Result<Account> validateInputBeforeTransfer(TransferredAccount trfAccount, Account account) {
-        Result<Account> result = new Result<>(account, 0, "", TO_FUND_TRANSFER_SUMMARY.getValue(), VALID);
+        Result<Account> result = new Result<Account>(account, "", TO_FUND_TRANSFER_SUMMARY, VALID);
 
         if (!trfAccount.getAccountNumber().matches("[0-9]+")) {
             result.setMessage("Invalid account");
@@ -129,7 +129,7 @@ public class FundTransferService {
 
         if (INVALID == result.getValid()) {
             outputHelper.print(result.getMessage());
-            result.setNavigation(TO_FUND_TRANSFER.getValue());
+            result.setNavigation(TO_FUND_TRANSFER);
         }
         return result;
     }
