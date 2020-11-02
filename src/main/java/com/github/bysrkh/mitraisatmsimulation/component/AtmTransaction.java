@@ -66,7 +66,7 @@ public class AtmTransaction {
     public String start() {
         Result<Account> result = new Result(new Account(), "", TO_TRANSACTION, VALID);
         do {
-            result = accountService.inputAccount(result);
+            result = accountService.loginAccount(result);
             result = proccessAtmScreen(result);
         } while (result.getNavigation() == TO_WELCOME_SCREEN);
 

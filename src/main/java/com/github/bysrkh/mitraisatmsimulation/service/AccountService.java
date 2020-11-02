@@ -25,7 +25,7 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public Result<Account> inputAccount(Result<Account> request) {
+    public Result<Account> loginAccount(Result<Account> request) {
         Account requestedAccount = request.getResult();
 
         do {
