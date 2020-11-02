@@ -1,21 +1,32 @@
 package com.github.bysrkh.mitraisatmsimulation.component;
 
 import com.github.bysrkh.mitraisatmsimulation.domain.Account;
-import com.github.bysrkh.mitraisatmsimulation.domain.Menu;
 import com.github.bysrkh.mitraisatmsimulation.domain.TransferredAccount;
 import com.github.bysrkh.mitraisatmsimulation.dto.Result;
+import com.github.bysrkh.mitraisatmsimulation.repository.AccountRepository;
 import com.github.bysrkh.mitraisatmsimulation.service.AccountService;
 import com.github.bysrkh.mitraisatmsimulation.service.FundTransferService;
 import com.github.bysrkh.mitraisatmsimulation.service.MenuService;
-import org.apache.commons.lang3.StringUtils;
+import com.github.bysrkh.mitraisatmsimulation.service.TransactionHistoryService;
+import com.github.bysrkh.mitraisatmsimulation.service.WithdrawalService;
+import com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
-import java.util.Map;
-import java.util.function.Function;
+import java.util.List;
 
-import static java.util.stream.Collectors.joining;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_FUND_TRANSFER;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_FUND_TRANSFER_CONFIRMATION;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_FUND_TRANSFER_SUMMARY;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_OTHER_WITHDRAWAL;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_TRANSACTION;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_TRANSACTION_HISTORY;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_WELCOME_SCREEN;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_WITHDRAWAL;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant.TO_WITHDRAWAL_SUMMARY;
+import static com.github.bysrkh.mitraisatmsimulation.util.constant.ValidConstant.VALID;
+import static java.util.Arrays.asList;
 
 @ShellComponent
 public class AtmTransaction {
@@ -27,109 +38,89 @@ public class AtmTransaction {
     @Autowired
     private FundTransferService fundTransferService;
     @Autowired
+    private WithdrawalService withdrawalService;
+    @Autowired
     private OutputHelper outputHelper;
+    @Autowired
+    private TransactionHistoryService transactionHistoryService;
+    @Autowired
+    private AccountRepository accountRepository;
+
+    private List<NavigationConstant> acceptableNavigation = asList(
+            TO_TRANSACTION,
+            TO_FUND_TRANSFER,
+            TO_FUND_TRANSFER_CONFIRMATION,
+            TO_FUND_TRANSFER_SUMMARY,
+            TO_WITHDRAWAL,
+            TO_WITHDRAWAL_SUMMARY,
+            TO_TRANSACTION_HISTORY,
+            TO_OTHER_WITHDRAWAL
+    );
+    private List<NavigationConstant> nonAcceptableFixedWithdrawNavigation = asList(
+            TO_TRANSACTION,
+            TO_OTHER_WITHDRAWAL
+    );
+    private List<Integer> acceptableFixedWithdrawalNavigation = asList(1, 2, 3);
+
     @ShellMethod("Start to transaction: ")
     public String start() {
-        Result<Account> result = new Result<>(new Account(), 0, "");
-
+        Result<Account> result = new Result(new Account(), "", TO_TRANSACTION, VALID);
         do {
-            result = accountService.inputAccount();
-            if (result.getChoose() != 1) {
-                outputHelper.print(result.getMessage());
-                continue;
-            }
-            result.setChoose(-1);
-            while (result.getChoose() == -1) {
-                result.setChoose(menuService.choosenMenu());
-                if (result.getChoose() == 1) {
-                    do {
-                        result.setChoose(menuService.choosenWithdraw());
+            result = accountService.inputAccount(result);
+            result = proccessAtmScreen(result);
+        } while (result.getNavigation() == TO_WELCOME_SCREEN);
 
-                        if (result.getChoose() <= 3) {
-                            switch (result.getChoose()) {
-                                case 1: result.getResult().setDeductedBalance(10); break;
-                                case 2: result.getResult().setDeductedBalance(50); break;
-                                case 3: result.getResult().setDeductedBalance(100); break;
-                                default: break;
-                            }
-                            result = accountService.deductAccount(result.getResult());
-                            if (result.getChoose() == 0) {
-                                result.setChoose(-2);
-                                continue;
-                            }
-                            result.setChoose(menuService.chooseSummary(result.getResult()));
-                            if (result.getChoose() == 1) {
-                                result.setChoose(-1);
-                            } else if (result.getChoose() == 2) {
-                                result.setChoose(0);
-                            }
-                            continue;
-                        } else if (result.getChoose() == 4) {
-                            do {
-                                result.getResult().setDeductedBalance(menuService.chooseWitdhrawalAdditionalOption());
-                                result = accountService.deductAccount(result.getResult());
-                            } while (result.getChoose() == 0);
-
-                            result.setChoose(menuService.chooseSummary(result.getResult()));
-                            if (result.getChoose() == 1)
-                                result.setChoose(-1);
-                            else
-                                result.setChoose(0);
-                        } else if (result.getChoose() == 5) {
-                            result.setChoose(-1);
-                            continue;
-                        }
-                    } while (result.getChoose() == -2);
-
-                } else if (result.getChoose() == 2){
-                    do {
-                        result = fundTransferService.inputTransferedAccount(result.getResult());
-                        if (result.getChoose() == -1) {
-                            break;
-                        }
-                        result = fundTransferService.isValidData(result.getResult());
-                        if (result.getChoose() == 0) {
-                            outputHelper.print(result.getMessage());
-                            continue;
-                        }
-                        result = fundTransferService.confirmTransaction(result.getResult());
-                        if (result.getChoose() == 2) {
-                            result.setChoose(0);
-                            continue;
-                        }
-                        result = fundTransferService.transferAmount(result.getResult());
-                    } while (result.getChoose() == 0);
-                        if (result.getChoose() == -1)
-                            continue;
-                        result.setChoose(menuService.chooseFundTransferSummary(result.getResult().getTransferredAccount(), result.getResult()));
-                        if (result.getChoose() == 1) {
-                            result.setChoose(-1);
-                        } else {
-                            result.setChoose(0);
-                        }
-
-                }
-            }
-
-        } while (result.getChoose() == 0);
-//
-//        while (choosen != menuService.choosenMenu()) {
-//            if (choosen == 1) {
-//                choosen = menuService.choosenWithdraw();
-//                if (choosen <= 3) {
-//                    Result<Account> result = accountService.deductAccount(null);
-//                    if (result.getChoose() == 0) System.exit(0);
-//                }
-//            }
-//
-//            choosen = 3;
-//        }
-
-        return "goodbye";
+        return "good bye";
     }
+
+    private Result<Account> proccessAtmScreen(Result<Account> result) {
+        Result<TransferredAccount> transferredAccountResult = new Result<TransferredAccount>(new TransferredAccount(), "", TO_TRANSACTION, VALID);
+        while (acceptableNavigation.contains(result.getNavigation())) {
+            if (TO_TRANSACTION == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(menuService.choosenMenu()));
+
+            } else if (result.getNavigation() == TO_WITHDRAWAL) {
+                int choosenWithdraw = menuService.choosenWithdraw();
+                result.setAdditionalNavigation(choosenWithdraw);
+                result.setNavigation(NavigationConstant.fromValue(choosenWithdraw));
+                if (acceptableFixedWithdrawalNavigation.contains(result.getAdditionalNavigation()))
+                    result = withdrawalService.withdrawFixedBalance(result);
+
+            } else if (result.getNavigation() == TO_OTHER_WITHDRAWAL) {
+                result.setAdditionalNavigation(menuService.chooseWitdhrawalAdditionalOption());
+                result = withdrawalService.withdrawOtherBalance(result);
+
+            } else if (TO_FUND_TRANSFER == result.getNavigation()) {
+                transferredAccountResult = fundTransferService.inputTransferedAccount();
+                result.setNavigation(transferredAccountResult.getNavigation());
+
+            } else if (result.getNavigation() == TO_WITHDRAWAL_SUMMARY) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        menuService.chooseWithdrawSummary(result.getResult()))
+                );
+
+            } else if (TO_FUND_TRANSFER_CONFIRMATION == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        fundTransferService.confirmTransaction(transferredAccountResult.getResult(), result.getResult()))
+                );
+                if (TO_FUND_TRANSFER != result.getNavigation())
+                    result = fundTransferService.transferAmount(transferredAccountResult.getResult(), result.getResult());
+
+            } else if (TO_FUND_TRANSFER_SUMMARY == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        menuService.chooseFundTransferSummary(transferredAccountResult.getResult(), result.getResult()))
+                );
+            } else if (TO_TRANSACTION_HISTORY == result.getNavigation()) {
+                result.setNavigation(NavigationConstant.fromValue(
+                        transactionHistoryService.printTransactionHistory(result))
+                );
+
+            }
+        }
+        return result;
+    }
+
 }
-
-
 
 
 

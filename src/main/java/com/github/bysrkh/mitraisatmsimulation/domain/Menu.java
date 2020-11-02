@@ -13,7 +13,8 @@ public class Menu {
     public Menu() {
         this.transactionOption.put(1, "Withdraw");
         this.transactionOption.put(2, "Fund Transfer");
-        this.transactionOption.put(3, "Exit");
+        this.transactionOption.put(3, "Transaction History");
+        this.transactionOption.put(4, "Exit");
 
         this.withdrawalOption.put(1, "$10");
         this.withdrawalOption.put(2, "$50");

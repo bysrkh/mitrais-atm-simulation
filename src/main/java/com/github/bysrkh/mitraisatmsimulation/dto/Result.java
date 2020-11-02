@@ -1,14 +1,23 @@
 package com.github.bysrkh.mitraisatmsimulation.dto;
 
-public class Result<T> {
-    private T result;
-    private int choose;
-    private String message;
+import com.github.bysrkh.mitraisatmsimulation.util.constant.NavigationConstant;
+import com.github.bysrkh.mitraisatmsimulation.util.constant.ValidConstant;
 
-    public Result(T result, int choose, String message) {
+public class  Result<T> {
+    private T result;
+    private String message;
+    private NavigationConstant navigation;
+    private int additionalNavigation;
+    private ValidConstant valid;
+
+    public Result(T result, String message, NavigationConstant navigation, ValidConstant valid) {
         this.result = result;
-        this.choose = choose;
         this.message = message;
+        this.navigation = navigation;
+        this.valid = valid;
+    }
+
+    public Result() {
     }
 
     public T getResult() {
@@ -19,13 +28,6 @@ public class Result<T> {
         this.result = result;
     }
 
-    public int getChoose() {
-        return choose;
-    }
-
-    public void setChoose(int choose) {
-        this.choose = choose;
-    }
 
     public String getMessage() {
         return message;
@@ -33,5 +35,29 @@ public class Result<T> {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public NavigationConstant getNavigation() {
+        return navigation;
+    }
+
+    public void setNavigation(NavigationConstant navigation) {
+        this.navigation = navigation;
+    }
+
+    public int getAdditionalNavigation() {
+        return additionalNavigation;
+    }
+
+    public void setAdditionalNavigation(int additionalNavigation) {
+        this.additionalNavigation = additionalNavigation;
+    }
+
+    public ValidConstant getValid() {
+        return valid;
+    }
+
+    public void setValid(ValidConstant valid) {
+        this.valid = valid;
     }
 }
