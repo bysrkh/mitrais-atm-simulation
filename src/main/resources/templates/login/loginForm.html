@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Meta Tag Description -->
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- Page Title -->
+    <title th:text="#{page.title.account.form}">Account | Login</title>
+</head>
+<body>
+<div>
+    <form class="form-horizontal" action="loginForm.html" th:action="@{${#httpServletRequest.servletPath}}"
+          th:object="${account}" method="post">
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="accountNumber" th:text="#{form.label.account.accountNumber}">Account
+                Number</label>
+            <div class="col-sm-9">
+                <input id="accountNumber" type="text" name="accountNumber" th:field="*{accountNumber}"/>
+            </div>
+            <p th:if="${#fields.hasErrors('accountNumber')}" th:errors="*{accountNumber}">Fill it</p>
+        </div>
+        <div class="form-group">
+            <label for="pin" th:text="#{form.label.account.pin}">pin</label>
+            <div class="col-sm-9">
+                <input id="pin" type="password" name="pin" th:field="*{pin}"/>
+            </div>
+            <p th:if="${#fields.hasErrors('pin')}" th:errors="*{pin}">Fill it</p>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <button class="btn btn-primary" type="submit" name="save" th:text="#{form.button.account.submit}">
+                    Save
+                </button>
+                <button class="btn btn-default" type="submit" name="cancel" th:text="#{form.button.account.cancel}">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

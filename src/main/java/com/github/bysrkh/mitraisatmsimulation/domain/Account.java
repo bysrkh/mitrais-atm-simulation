@@ -1,34 +1,33 @@
 package com.github.bysrkh.mitraisatmsimulation.domain;
 
-import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
 
+@Entity
 public class Account {
+    @Id
+    private String id;
     private String name;
+    @NotEmpty
     private String pin;
     private int balance;
+    @NotEmpty
     private String accountNumber;
-    private List<BalanceHistory> balanceHistories = new ArrayList<>();
 
-    public Account() {
+    public String getId() {
+        return id;
     }
 
-    public Account(String accountNumber) {
-        this.accountNumber = accountNumber;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
-    }
-
-    public Account(String name, String pin, int balance, String accountNumber) {
-        this.name = name;
-        this.pin = pin;
-        this.balance = balance;
-        this.accountNumber = accountNumber;
     }
 
     public void setName(String name) {
@@ -59,32 +58,4 @@ public class Account {
         this.accountNumber = accountNumber;
     }
 
-
-    public List<BalanceHistory> getBalanceHistories() {
-        return balanceHistories;
-    }
-
-    public void setBalanceHistories(List<BalanceHistory> balanceHistories) {
-        this.balanceHistories = balanceHistories;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            throw new RuntimeException("Object must be filled");
-
-        if (!(obj instanceof Account))
-            throw new RuntimeException("Object must be same data type");
-
-        Account comparedAccount = (Account) obj;
-        if (!(StringUtils.equals(this.getAccountNumber(), comparedAccount.getAccountNumber()) && StringUtils.equals(this.getPin(), comparedAccount.getPin())))
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(123, this.getAccountNumber(), this.getBalance(), this.getName(), this.getPin());
-    }
 }

@@ -1,0 +1,35 @@
+`<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Meta Tag Description -->
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- Page Title -->
+    <title th:text="#{page.title.menu.withdrawal.form}">Account | Login</title>
+</head>
+<body>
+<div>
+    <form class="form-horizontal" action="withdrawalMenuForm.html" th:action="@{${#httpServletRequest.servletPath}}"
+          th:object="${menu}" method="post">
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="withdrawalOption" th:text="#{form.label.witdhrawal.option}">
+                Please choose option
+            </label>
+            <div th:each="entry, stats : ${withdrawalOptions}" th:with="tO=${entry.value}" class="col-sm-9">
+                <input id="withdrawalOption" type="radio" name="withdrawalOption" th:field="*{withdrawalOption}" th:value="${entry.key}" th:text="${tO}"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <button class="btn btn-primary" type="submit" name="save" th:text="#{form.button.account.submit}">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>`
